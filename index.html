@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ZekaKod AI — Yapay Zeka Kod Asistanı</title>
+<meta name="description" content="Türkçe yapay zeka destekli kod editörü: üret, açıkla, düzelt, çalıştır." />
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">◈</div>
+      <div>
+        <h1>ZekaKod <span>AI</span></h1>
+        <p>Yapay Zeka Kod Stüdyosu</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <select id="langSelect" title="Dil seç">
+        <option value="javascript">JavaScript</option>
+        <option value="typescript">TypeScript</option>
+        <option value="python">Python</option>
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="java">Java</option>
+        <option value="csharp">C#</option>
+        <option value="cpp">C++</option>
+        <option value="go">Go</option>
+        <option value="rust">Rust</option>
+        <option value="sql">SQL</option>
+      </select>
+      <select id="modelSelect" title="Model">
+        <option value="local">⚡ Yerel Demo AI (ücretsiz)</option>
+        <option value="gpt">🌐 OpenAI Uyumlu API</option>
+      </select>
+      <button id="apiBtn" class="btn ghost">🔑 API Anahtarı</button>
+      <button id="themeBtn" class="btn ghost">🌙</button>
+      <button id="runBtn" class="btn primary">▶ Çalıştır</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <button data-act="generate" class="chip">✨ Üret</button>
+    <button data-act="explain" class="chip">📖 Açıkla</button>
+    <button data-act="fix" class="chip">🛠 Hata Düzelt</button>
+    <button data-act="refactor" class="chip">♻ Refaktör</button>
+    <button data-act="test" class="chip">🧪 Test Yaz</button>
+    <button data-act="comment" class="chip">💬 Yorumla</button>
+    <button data-act="translate" class="chip">🔄 Dile Çevir</button>
+    <div class="spacer"></div>
+    <button id="copyBtn" class="chip mini">📋 Kopyala</button>
+    <button id="downloadBtn" class="chip mini">⬇ İndir</button>
+    <button id="clearBtn" class="chip mini">🗑 Temizle</button>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="side-section">
+        <h3>📁 Dosyalar</h3>
+        <div id="fileList"></div>
+        <button id="newFileBtn" class="btn ghost small full">+ Yeni Dosya</button>
+      </div>
+      <div class="side-section">
+        <h3>⚡ Hazır Promptlar</h3>
+        <div class="prompt-grid">
+          <button data-prompt="Bana modern bir todo uygulaması yaz">Todo App</button>
+          <button data-prompt="Basit bir hesap makinesi fonksiyonu yaz">Hesap Makinesi</button>
+          <button data-prompt="Fetch API ile veri çeken örnek yaz">Fetch API</button>
+          <button data-prompt="Python ile quicksort algoritması yaz">Quicksort</button>
+          <button data-prompt="Responsive navbar HTML+CSS yaz">Navbar</button>
+          <button data-prompt="JWT ile login örneği yaz">Login/JWT</button>
+        </div>
+      </div>
+      <div class="side-section status-card">
+        <h3>🤖 AI Durumu</h3>
+        <div id="aiStatus" class="ai-status local"><span class="dot"></span> Yerel Demo AI aktif</div>
+        <p class="hint">API anahtarı eklersen gerçek LLM (GPT, Claude, Gemini via OpenRouter) kullanır.</p>
+      </div>
+    </aside>
+
+    <section class="editor-pane">
+      <div class="tabs">
+        <div id="tabs" class="tab-list"></div>
+      </div>
+      <div id="editor" class="editor"></div>
+      <div class="output-pane">
+        <div class="output-head">
+          <div class="output-tabs">
+            <button class="otab active" data-tab="console">Konsol</button>
+            <button class="otab" data-tab="preview">Önizleme</button>
+          </div>
+          <span id="runStatus" class="run-status">Hazır ●</span>
+        </div>
+        <pre id="consoleOut" class="console">> Çıktı burada görünecek… JavaScript kodunu doğrudan çalıştırabilirsin.&#10;> Örnek: console.log("Merhaba ZekaKod!")</pre>
+        <iframe id="previewFrame" class="preview hidden" sandbox="allow-scripts" title="preview"></iframe>
+      </div>
+    </section>
+
+    <section class="chat-pane">
+      <div class="chat-head">
+        <h3>💬 AI Asistan</h3>
+        <button id="clearChat" class="btn ghost small">Temizle</button>
+      </div>
+      <div id="chat" class="chat"></div>
+      <div class="composer">
+        <textarea id="chatInput" rows="2" placeholder="Ne yapmamı istersin? Örn: Bu kodu açıkla, fibonacci fonksiyonu yaz… (Ctrl+Enter gönderir)"></textarea>
+        <button id="sendBtn" class="btn primary">➤</button>
+      </div>
+      <div class="composer-hint">Yerel Demo modu internet gerektirmez · API modunda anahtarın tarayıcıda saklanır</div>
+    </section>
+  </main>
+
+  <dialog id="apiDialog">
+    <form method="dialog" class="dialog-card">
+      <h3>🔑 OpenAI Uyumlu API Bağla</h3>
+      <p>OpenAI, OpenRouter, Groq veya LM Studio endpoint'i girebilirsin.</p>
+      <label>Endpoint<input id="apiEndpoint" value="https://api.openai.com/v1/chat/completions" /></label>
+      <label>API Anahtarı<input id="apiKey" type="password" placeholder="sk-..." /></label>
+      <label>Model<input id="apiModel" value="gpt-4o-mini" /></label>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn ghost">Kapat</button>
+        <button id="saveApi" value="default" class="btn primary">Kaydet</button>
+      </div>
+    </form>
+  </dialog>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
