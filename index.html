@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Sohby — Türkçe Akıllı Sohbet Botu</title>
+<meta name="description" content="Sohby: hızlı, gizlilik dostu, Türkçe akıllı sohbet botu. Tamamen tarayıcıda çalışır." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar" aria-label="Sohbet geçmişi">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">💬</div>
+      <div class="brand-text">
+        <strong>Sohby</strong>
+        <span>v1.0 • çevrimdışı dostu</span>
+      </div>
+      <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="Kenar çubuğunu kapat">✕</button>
+    </div>
+
+    <button class="new-chat" id="newChatBtn">
+      <span class="plus">＋</span> Yeni Sohbet
+      <kbd>Ctrl K</kbd>
+    </button>
+
+    <div class="search-wrap">
+      <span aria-hidden="true">🔎</span>
+      <input id="searchInput" type="search" placeholder="Sohbetlerde ara..." autocomplete="off" />
+    </div>
+
+    <div class="history-label">Geçmiş <span id="historyCount">0</span></div>
+    <nav class="history" id="historyList"></nav>
+
+    <div class="sidebar-footer">
+      <div class="persona-row">
+        <label for="personaSelect">Bot kişiliği</label>
+        <select id="personaSelect">
+          <option value="dost">😊 Dost</option>
+          <option value="profesyonel">💼 Profesyonel</option>
+          <option value="esprili">😂 Esprili</option>
+          <option value="bilge">🦉 Bilge</option>
+        </select>
+      </div>
+      <div class="footer-btns">
+        <button class="ghost-btn" id="themeBtn" aria-label="Temayı değiştir">🌙 Tema</button>
+        <button class="ghost-btn danger" id="clearAllBtn">🗑 Temizle</button>
+      </div>
+      <p class="privacy">🔒 Tüm veriler yalnızca bu tarayıcıda saklanır.</p>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" aria-label="Menüyü aç">☰</button>
+      <div class="topbar-title">
+        <span class="status-dot" id="statusDot"></span>
+        <div>
+          <strong id="chatTitle">Yeni Sohbet</strong>
+          <small id="statusText">Sohby çevrimiçi • genelde ~1 sn'de yanıtlar</small>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="voiceToggleBtn" title="Sesli yanıt (açık/kapalı)" aria-label="Sesli yanıt">🔊</button>
+        <button class="icon-btn" id="exportBtn" title="Sohbeti .txt olarak indir" aria-label="Dışa aktar">⤓</button>
+        <button class="icon-btn" id="themeBtn2" title="Tema" aria-label="Tema">🌙</button>
+      </div>
+    </header>
+
+    <section class="chat" id="chatScroll">
+      <div class="chat-inner" id="chatInner">
+        <!-- welcome hero -->
+        <div class="hero" id="hero">
+          <div class="hero-bot">🤖</div>
+          <h1>Merhaba, ben <span class="grad">Sohby</span>! 👋</h1>
+          <p>Sana Türkçe yardımcı olabilirim: soru cevaplarım, hesap yaparım, şaka ve motivasyon paylaşırım, saati söylerim. Bir şeyler yazmaya başla 👇</p>
+          <div class="chips" id="heroChips">
+            <button data-q="Merhaba!">👋 Merhaba!</button>
+            <button data-q="Neler yapabilirsin?">✨ Neler yapabilirsin?</button>
+            <button data-q="Bana bir şaka yap">😂 Bana şaka yap</button>
+            <button data-q="Motivasyon sözü söyle">🔥 Motive et</button>
+            <button data-q="Saat kaç?">🕒 Saat kaç?</button>
+            <button data-q="1250 * 36 kaç eder?">🧮 1250 × 36?</button>
+          </div>
+          <div class="caps">
+            <div><b>⚡</b><span>Hızlı & çevrimdışı<br/>sunucu gerekmez</span></div>
+            <div><b>🧠</b><span>Akıllı niyet tanıma<br/>Türkçe doğal dil</span></div>
+            <div><b>🔒</b><span>%100 gizlilik<br/>localStorage</span></div>
+          </div>
+        </div>
+        <div id="messages"></div>
+        <div class="typing" id="typing" hidden>
+          <div class="typing-bubble"><span></span><span></span><span></span></div>
+          <small>Sohby yazıyor…</small>
+        </div>
+      </div>
+    </section>
+
+    <div class="suggestions" id="suggestions">
+      <button data-q="Hava durumu İstanbul">🌤️ İstanbul hava</button>
+      <button data-q="Bana bir fıkra anlat">😄 Fıkra</button>
+      <button data-q="Bugünün tarihi ne?">📅 Tarih</button>
+      <button data-q="Teşekkürler">🙏 Teşekkürler</button>
+    </div>
+
+    <footer class="composer-wrap">
+      <div class="composer">
+        <button class="icon-btn" id="micBtn" title="Sesli yazım (Chrome önerilir)" aria-label="Sesli yazım">🎙️</button>
+        <textarea id="input" rows="1" placeholder="Sohby'ye bir mesaj yaz… (Enter: gönder, Shift+Enter: yeni satır)" maxlength="2000"></textarea>
+        <button class="send" id="sendBtn" aria-label="Gönder">
+          <span id="sendIcon">➤</span>
+        </button>
+      </div>
+      <div class="composer-meta">
+        <small id="charCount">0 / 2000</small>
+        <small>Sohby hata yapabilir — önemli bilgileri doğrulayın.</small>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="./app.js"></script>
+</body>
+</html>
