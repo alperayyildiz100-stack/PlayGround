@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Sohbet Botu — Türkçe akıllı asistan. Çevrimdışı, hızlı ve ücretsiz.">
+<meta name="theme-color" content="#6d5cff">
+<title>Sohbet Botu • Türkçe Akıllı Asistan</title>
+<style>
+:root{
+  --bg:#0b0e1a; --bg2:#12172b; --card:#171e36; --card2:#1e2750;
+  --line:rgba(255,255,255,.09); --txt:#eef1ff; --mut:#9aa4c7;
+  --acc:#6d5cff; --acc2:#00d4ff; --ok:#22c55e; --warn:#f59e0b;
+  --user:#6d5cff; --radius:18px; --shadow:0 20px 60px rgba(0,0,0,.45);
+  --font:ui-sans-system,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+}
+[data-theme="light"]{
+  --bg:#f3f4fb; --bg2:#ffffff; --card:#ffffff; --card2:#eef1ff;
+  --line:rgba(20,20,60,.1); --txt:#131735; --mut:#5b648c;
+  --shadow:0 18px 50px rgba(60,60,140,.15);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:var(--font);background:radial-gradient(1200px 600px at 15% -10%,rgba(109,92,255,.35),transparent 60%),radial-gradient(900px 500px at 95% 10%,rgba(0,212,255,.22),transparent 60%),var(--bg);
+  color:var(--txt);overflow:hidden;
+}
+.app{display:flex;height:100dvh;max-width:1280px;margin:0 auto;gap:14px;padding:14px}
+/* SIDEBAR */
+.side{width:300px;flex-shrink:0;background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px;padding:16px}
+.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 8px 24px rgba(109,92,255,.5)}
+.brand b{font-size:17px;display:block}.brand span{font-size:12px;color:var(--mut)}
+.newbtn{margin:0 14px 10px;border:0;border-radius:14px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--acc),#9a7bff);transition:.2s}
+.newbtn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.sect{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);padding:12px 16px 6px;font-weight:800}
+.personas{display:flex;flex-direction:column;gap:8px;padding:0 12px;overflow:auto}
+.p{display:flex;gap:10px;align-items:center;padding:10px;border-radius:14px;border:1px solid transparent;cursor:pointer;transition:.15s;background:transparent;color:var(--txt);text-align:left;width:100%;font-family:inherit}
+.p:hover{background:rgba(109,92,255,.12)}
+.p.active{background:rgba(109,92,255,.18);border-color:rgba(109,92,255,.4)}
+.p .e{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:20px;background:var(--card2);flex-shrink:0}
+.p b{font-size:13.5px;display:block}.p small{color:var(--mut);font-size:11.5px}
+.hist{flex:1;overflow:auto;padding:0 12px 10px;display:flex;flex-direction:column;gap:6px}
+.hitem{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:12px;border:1px solid transparent;cursor:pointer;font-size:13px;color:var(--txt);background:transparent;width:100%;text-align:left;font-family:inherit}
+.hitem:hover{background:rgba(255,255,255,.06)}
+.hitem.active{border-color:rgba(109,92,255,.4);background:rgba(109,92,255,.12)}
+.hitem .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hitem .x{opacity:.5;border:0;background:transparent;color:inherit;cursor:pointer;font-size:14px}
+.sidefoot{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px}
+.ghost{flex:1;border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:12px;padding:9px;cursor:pointer;font-size:12.5px;font-weight:600}
+.ghost:hover{background:rgba(255,255,255,.07)}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);min-width:0}
+.top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+.menuBtn{display:none;border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:16px}
+.status{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.avatar{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.status b{font-size:14.5px;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(34,197,94,.2);animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(34,197,94,.1)}}
+.status small{color:var(--mut);font-size:12px;display:block}
+.icobtn{border:1px solid var(--line);background:transparent;color:var(--txt);border-radius:11px;padding:8px 10px;cursor:pointer;font-size:15px}
+.icobtn:hover{background:rgba(255,255,255,.08)}
+.icobtn.on{background:rgba(109,92,255,.2);border-color:var(--acc)}
+.chat{flex:1;overflow-y:auto;padding:22px 18px;scroll-behavior:smooth}
+.welcome{max-width:640px;margin:6vh auto;text-align:center}
+.welcome h1{font-size:clamp(26px,4vw,40px);margin:12px 0 8px;letter-spacing:-.02em}
+.grad{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.welcome p{color:var(--mut);font-size:15px;line-height:1.6}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px;text-align:left}
+.card{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px;padding:14px;cursor:pointer;transition:.15s;color:var(--txt);font-family:inherit}
+[data-theme="light"] .card{background:#f6f7ff}
+.card:hover{transform:translateY(-2px);border-color:var(--acc)}
+.card b{font-size:13.5px;display:block;margin-bottom:4px}
+.card span{font-size:12.5px;color:var(--mut)}
+.msgs{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.msg{display:flex;gap:10px;animation:up .3s ease}
+@keyframes up{from{opacity:0;transform:translateY(8px)}}
+.msg .av{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:18px;flex-shrink:0;background:var(--card2)}
+.msg.user{flex-direction:row-reverse}
+.msg.user .av{background:linear-gradient(135deg,var(--acc),#9a7bff);color:#fff}
+.bub{max-width:min(78%,560px);padding:12px 14px;border-radius:16px;font-size:14.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;border:1px solid var(--line);background:rgba(255,255,255,.05)}
+[data-theme="light"] .bub{background:#f4f5ff}
+.msg.user .bub{background:linear-gradient(135deg,#6d5cff,#836fff);color:#fff;border:0;border-top-right-radius:6px}
+.msg.bot .bub{border-top-left-radius:6px}
+.bub code{background:rgba(0,0,0,.35);padding:1px 6px;border-radius:6px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+[data-theme="light"] .bub code{background:rgba(0,0,0,.08)}
+.bub pre{background:#0a0d1e;color:#dbe4ff;padding:12px;border-radius:12px;overflow:auto;font-size:13px;margin:8px 0 2px}
+.meta{display:flex;gap:8px;align-items:center;margin-top:6px;font-size:11px;color:var(--mut)}
+.meta button{border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:12px;padding:2px 4px}
+.meta button:hover{color:var(--txt)}
+.typing{display:inline-flex;gap:5px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:b 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.sugs{max-width:760px;margin:0 auto;padding:10px 0 0;display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:rgba(109,92,255,.1);color:var(--txt);border-radius:999px;padding:8px 13px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.chip:hover{background:rgba(109,92,255,.25)}
+.inputbar{padding:14px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.box{max-width:760px;margin:0 auto;display:flex;gap:8px;align-items:flex-end;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:8px}
+[data-theme="light"] .box{background:#f4f5ff}
+.box:focus-within{border-color:var(--acc)}
+textarea{flex:1;border:0;background:transparent;color:var(--txt);resize:none;outline:0;font-size:14.5px;font-family:inherit;max-height:140px;padding:9px 6px;line-height:1.5}
+textarea::placeholder{color:var(--mut)}
+.send{width:42px;height:42px;border-radius:13px;border:0;cursor:pointer;font-size:18px;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));flex-shrink:0}
+.send:disabled{opacity:.45;cursor:default}
+.hint{text-align:center;font-size:11px;color:var(--mut);margin-top:8px}
+.backdrop{display:none}
+.stats{display:flex;gap:14px;justify-content:center;margin-top:14px;font-size:12px;color:var(--mut)}
+@media(max-width:900px){
+  .app{padding:0;gap:0}.main,.side{border-radius:0;border:0}
+  .side{position:fixed;inset:0 auto 0 0;z-index:50;width:min(84vw,320px);transform:translateX(-105%);transition:.25s;border-radius:0 20px 20px 0}
+  .side.open{transform:none}
+  .menuBtn{display:block}
+  .backdrop.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+  .cards{grid-template-columns:1fr}
+  .bub{max-width:86%}
+  .chat{padding:16px 12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="logo">💬</div>
+      <div><b>Sohbet Botu</b><span>Türkçe • Çevrimdışı • Ücretsiz</span></div>
+    </div>
+    <button class="newbtn" id="newChat">＋ Yeni Sohbet</button>
+    <div class="sect">🤖 Asistanlar</div>
+    <div class="personas" id="personas"></div>
+    <div class="sect">🕘 Geçmiş</div>
+    <div class="hist" id="hist"></div>
+    <div class="sidefoot">
+      <button class="ghost" id="exportBtn">⬇ Dışa Aktar</button>
+      <button class="ghost" id="clearBtn">🗑 Temizle</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <button class="menuBtn" id="menuBtn">☰</button>
+      <div class="status">
+        <div class="avatar" id="curAvatar">🤖</div>
+        <div><b><span id="curName">Genel Asistan</span><span class="dot"></span></b><small id="curDesc">Çevrimiçi • yazıyor…</small></div>
+      </div>
+      <button class="icobtn" id="themeBtn" title="Tema">🌙</button>
+      <button class="icobtn on" id="soundBtn" title="Sesli okuma">🔊</button>
+      <button class="icobtn" id="newChat2" title="Yeni sohbet">✎</button>
+    </div>
+    <div class="chat" id="chat"><div class="msgs" id="msgs"></div>
+      <div class="sugs" id="sugs"></div>
+    </div>
+    <div class="inputbar">
+      <div class="box">
+        <button class="icobtn" id="micBtn" title="Sesle yaz (Türkçe)">🎤</button>
+        <textarea id="inp" rows="1" placeholder="Bir şey yaz… (Enter: gönder, Shift+Enter: yeni satır)"></textarea>
+        <button class="send" id="sendBtn" title="Gönder">➤</button>
+      </div>
+      <div class="hint">Hesap yapabilirim (<b>12*8</b> yaz dene) • <b>saat kaç</b> • <b>şaka yap</b> • <b>bana motivasyon ver</b></div>
+    </div>
+  </main>
+</div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const chat=$("#chat"),msgs=$("#msgs"),inp=$("#inp"),sendBtn=$("#sendBtn"),sugs=$("#sugs");
+const personasEl=$("#personas"),histEl=$("#hist");
+
+const PERSONAS=[
+ {id:"genel",e:"🤖",n:"Genel Asistan",d:"Her konuda yardımcı",g:"Merhaba! Ben Genel Asistanın. Sana her konuda yardım edebilirim. 😊"},
+ {id:"yazilim",e:"💻",n:"Yazılım Uzmanı",d:"Kod, hata, algoritma",g:"Selam geliştirici! 👨‍💻 JavaScript, Python, HTML/CSS ve algoritma sorularını bana sorabilirsin. Kod örneği de veririm."},
+ {id:"ogretmen",e:"📚",n:"Türkçe Öğretmeni",d:"Dilbilgisi, yazım, kompozisyon",g:"Merhaba sevgili öğrencim! 📚 Türkçe dilbilgisi, yazım kuralları, paragraf ve kompozisyon konularında buradayım."},
+ {id:"koc",e:"🔥",n:"Motivasyon Koçu",d:"Hedef, disiplin, enerji",g:"Günaydın şampiyon! 🔥 Bugün harekete geçme günü. Hedefini söyle, sana plan çıkarayım."},
+ {id:"komik",e:"😂",n:"Komik Dost",d:"Şaka, bilmece, eğlence",g:"Heey! 😂 Eğlence modu açıldı! Bana 'şaka yap' ya da 'bilmece sor' de, gerisini bana bırak!"}
+];
+const QUICK=["👋 Selam!","Saat kaç?","12*8 kaç eder?","Bana şaka yap","Bana motivasyon ver","Bilmece sor","Sen kimsin?","Yardım"];
+const JOKES=["Temel'e sormuşlar: En sevdiğin yemek? — Hazır yemek! Neden? — Hazırlaması kolay da ondan. 😄","Öğretmen: 'Çocuklar, sessiz olun, arkadaki veliler duyacak!' 😂","— Kanka cüzdanım kayboldu! — İçinde para var mıydı? — Yoktu zaten, o yüzden sakinim. 😅","Bilgisayar neden soğuk sever? Çünkü Windows'ları açık! 🪟❄️","Balık neden akıllıdır? Çünkü okulda okur! 🐟🎒","— Garson, çorbamda sinek var! — Merak etmeyin efendim, cankurtaran yeleği giymiş. 🏊","Matematik kitabıyla Türkçe kitabı evlenmiş, çocukları problem olmuş! 📖","Kedi veterinere gitmiş, 'miyav' demiş. Veteriner: 'Anladım, derdinizi anlatın.' 😹"];
+const MOTIV=["🚀 Başlamak için mükemmel olmayı bekleme; mükemmel olmak için başla! Bugün tek bir küçük adım at.","💪 Disiplin, motivasyon bitince devreye girer. Bugün 25 dakika odaklan, yarın kendine teşekkür edeceksin.","🌱 Her uzman bir zamanlar acemiydi. Vazgeçmeyen kazanır — devam et!","🎯 Hedefini kağıda yaz, 3 parçaya böl, ilk parçaya bugün başla. Küçük zaferler büyük sonuç doğurur.","🔥 Yorgunluk geçer, pişmanlık kalır. Şimdi yap!","⭐ Kendine inan: Sen bunu daha önce de başardın, yine başarırsın."];
+const RIDDLES=[["Bil bakalım: Konuşur ama dili yok, koşar ama ayağı yok. Nedir?|⏰ Saat","Delik testi var ama su tutar. Nedir?|🧽 Sünger","Ne kadar çok alırsan o kadar çok ardında bırakırsın. Nedir?|👣 Adım / ayak izi","Hangi ayda 28 gün vardır?|😏 Hepsinde!","Sıcakta donar, soğukta erir. Nedir?|🥶 Ter / Terleme — şaşırtmalı! Cevap: ter."]];
+const PROVERBS=["Damlaya damlaya göl olur. 💧","İşleyen demir ışıldar. ⚙️","Azimli sıçan duvarı deler. 🐭","Sabreden derviş muradına ermiş. 🧘"];
+const FALLBACKS=["Hmm, bunu şöyle anladım: \\\"{q}\\\" — biraz daha açar mısın? Örneğin 'yardım' yazarak neler yapabildiğimi görebilirsin. 🤔","Güzel soru! Bu konuda net bilgim yok ama tahminim: {t}. İstersen farklı şekilde sor. 💡","Anladığımdan emin olmak için tekrar sorar mısın? Bu arada 'şaka yap', 'hesapla 25*4' ya da 'saat kaç' gibi şeyler deneyebilirsin. 😊"];
+
+let state={persona:"genel",sessions:{},cur:null,sound:true,theme:"dark"};
+try{const s=JSON.parse(localStorage.getItem("sohbet-botu-v1")||"null");if(s)state={...state,...s};}catch{}
+function save(){try{localStorage.setItem("sohbet-botu-v1",JSON.stringify(state));}catch{}}
+function cur(){return state.sessions[state.cur];}
+function nowT(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function fmt(t){
+  let h=esc(t);
+  h=h.replace(/```([\s\S]*?)```/g,(m,c)=>`<pre>${esc(c.trim())}</pre>`);
+  h=h.replace(/`([^`]+)`/g,"<code>$1</code>");
+  h=h.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+  h=h.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--acc2)">$1</a>');
+  return h;
+}
+function persona(){return PERSONAS.find(p=>p.id===state.persona)||PERSONAS[0];}
+
+/* ---------- sessions ---------- */
+function newSession(first){
+  const id="s"+Date.now()+Math.floor(Math.random()*999);
+  const p=persona();
+  state.sessions[id]={id,title:"Yeni sohbet",persona:state.persona,msgs:[{r:"bot",t:p.g,ts:Date.now()}],created:Date.now()};
+  state.cur=id;save();renderAll();
+  if(first)scrollDown();
+}
+function switchSession(id){state.cur=id;const s=cur();if(s)state.persona=s.persona;save();renderAll();}
+function delSession(id){
+  delete state.sessions[id];
+  const ids=Object.keys(state.sessions);
+  if(!ids.length)newSession();else if(state.cur===id)state.cur=ids[ids.length-1];
+  save();renderAll();
+}
+
+/* ---------- render ---------- */
+function renderPersonas(){
+  personasEl.innerHTML="";
+  PERSONAS.forEach(p=>{
+    const b=document.createElement("button");
+    b.className="p"+(p.id===state.persona?" active":"");
+    b.innerHTML=`<span class="e">${p.e}</span><span><b>${p.n}</b><small>${p.d}</small></span>`;
+    b.onclick=()=>{state.persona=p.id;const s=cur();if(s)s.persona=p.id;save();renderAll();};
+    personasEl.appendChild(b);
+  });
+  const p=persona();$("#curAvatar").textContent=p.e;$("#curName").textContent=p.n;$("#curDesc").textContent=p.d+" • çevrimiçi";
+}
+function renderHist(){
+  histEl.innerHTML="";
+  const ids=Object.keys(state.sessions).sort((a,b)=>state.sessions[b].created-state.sessions[a].created);
+  if(!ids.length){histEl.innerHTML='<div style="color:var(--mut);font-size:12px;padding:6px 4px">Henüz sohbet yok.</div>';return;}
+  ids.slice(0,30).forEach(id=>{
+    const s=state.sessions[id];
+    const b=document.createElement("div");
+    b.style.display="flex";
+    b.innerHTML=`<button class="hitem${id===state.cur?" active":""}"><span>💭</span><span class="t"></span><span class="x" title="Sil">✕</span></button>`;
+    b.querySelector(".t").textContent=s.title||"Sohbet";
+    b.querySelector(".hitem").onclick=e=>{if(e.target.classList.contains("x"))return;switchSession(id);closeSide();};
+    b.querySelector(".x").onclick=()=>delSession(id);
+    histEl.appendChild(b);
+  });
+}
+function bubble(r,t){
+  const d=document.createElement("div");
+  d.className="msg "+r;
+  d.innerHTML=`<div class="av">${r==="user"?"🧑":persona().e}</div><div style="min-width:0"><div class="bub">${fmt(t)}</div><div class="meta"><span>${nowT()}</span>${r==="bot"?`<button data-a="copy">📋 Kopyala</button><button data-a="speak">🔊 Oku</button>`:""}</div></div>`;
+  if(r==="bot"){
+    d.querySelector('[data-a="copy"]').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(t);e.target.textContent="✅ Kopyalandı";setTimeout(()=>e.target.textContent="📋 Kopyala",1500);};
+    d.querySelector('[data-a="speak"]').onclick=()=>speak(t);
+  }
+  return d;
+}
+function renderMsgs(stream){
+  msgs.innerHTML="";
+  const s=cur();if(!s)return;
+  if(s.msgs.length<=1){renderWelcome();return;}
+  s.msgs.forEach(m=>msgs.appendChild(bubble(m.r,m.t)));
+  if(stream){msgs.appendChild(stream);}
+  sugs.innerHTML="";
+  QUICK.slice(0,6).forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>{inp.value=q;send();};sugs.appendChild(c);});
+}
+function renderWelcome(){
+  msgs.innerHTML=`<div class="welcome"><div style="font-size:52px">${persona().e}</div>
+  <h1>Merhaba, ben <span class="grad">${persona().n}</span> 👋</h1>
+  <p>${esc(persona().g)}<br>Aşağıdan bir konu seç ya da aklındakini yaz. Tamamen <b>ücretsiz</b> ve <b>çevrimdışı</b> çalışırım.</p>
+  <div class="cards">
+   <button class="card" data-q="12*8 kaç eder?"><b>🧮 Hesap yap</b><span>12*8, (50+30)/4 gibi işlemleri anında çözerim</span></button>
+   <button class="card" data-q="Bana şaka yap"><b>😂 Şaka & bilmece</b><span>Morali yükselten şakalar ve bilmeceler</span></button>
+   <button class="card" data-q="Bana motivasyon ver"><b>🔥 Motivasyon</b><span>Hedefine odaklan, erteleme! Plan çıkarayım</span></button>
+   <button class="card" data-q="Yardım"><b>✨ Neler yapabilirsin?</b><span>Tüm komutları ve yetenekleri listele</span></button>
+  </div>
+  <div class="stats"><span>💬 ${totalMsgs()} mesaj</span><span>🤖 5 asistan</span><span>🔒 %100 gizli (cihazında saklanır)</span></div></div>`;
+  msgs.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{inp.value=b.dataset.q;send();});
+  sugs.innerHTML="";
+  QUICK.forEach(q=>{const c=document.createElement("button");c.className="chip";c.textContent=q;c.onclick=()=>{inp.value=q;send();};sugs.appendChild(c);});
+}
+function totalMsgs(){return Object.values(state.sessions).reduce((a,s)=>a+s.msgs.length,0);}
+function renderAll(){renderPersonas();renderHist();renderMsgs();applyTheme();}
+function scrollDown(){requestAnimationFrame(()=>chat.scrollTo({top:chat.scrollHeight,behavior:"smooth"}));}
+
+/* ---------- bot brain (Türkçe) ---------- */
+function norm(s){return s.toLocaleLowerCase("tr-TR").replace(/[^a-zçğıöşü0-9\+\-\*\/\(\)\.\,\?\!\s]/gi," ").replace(/\s+/g," ").trim();}
+function safeCalc(expr){
+  const clean=expr.replace(/,/g,".").replace(/×/g,"*").replace(/÷/g,"/").replace(/x/g,"*").replace(/[^0-9+\-*/().\s]/g,"");
+  if(!/^[0-9+\-*/().\s.]+$/.test(clean)||!/[0-9]/.test(clean)||/[+\-*/.]{3,}/.test(clean))return null;
+  try{const v=Function('"use strict";return('+clean+")")();if(typeof v!=="number"||!isFinite(v))return null;return{v,clean:clean.trim()};}catch{return null;}
+}
+function style(t){
+  const id=state.persona;
+  if(id==="komik")return t+" 😂";
+  if(id==="koc")return t+" 💪 Hadi, şimdi uygula!";
+  if(id==="yazilim")return t;
+  return t;
+}
+function answer(raw){
+  const q=norm(raw);
+  const p=persona();
+  const has=(...ws)=>ws.some(w=>q.includes(w));
+  // matematik
+  const mExpr=raw.match(/([0-9][0-9\s.,+\-*/×÷x()^%]*[0-9)])/);
+  if(has("kaç eder","hesapla","hesap","işlem","topla","çarp","böl","çıkar","sonuç")||(mExpr&&/[+\-*/×÷]/.test(mExpr[1]))){
+    const c=safeCalc(mExpr?mExpr[1]:raw);
+    if(c)return style(`🧮 **${c.clean} = ${Math.round(c.v*1000)/1000}**`);
+  }
+  if(/^\s*[0-9][0-9\s.,+\-*/×÷x()]*\s*$/.test(raw)&&/[+\-*/]/.test(raw)){
+    const c=safeCalc(raw);if(c)return style(`🧮 **${c.clean} = ${Math.round(c.v*1000)/1000}**`);
+  }
+  // selam
+  if(/^(selam|merhaba|hey|günaydın|iyi akşam|iyi gün|naber|sa)\b/.test(q)||has("selam","merhaba"))
+    return style(`Merhaba! 👋 Ben **${p.n}**. Bugün sana nasıl yardımcı olabilirim?`);
+  if(has("nasılsın","naber","ne haber","keyfin"))return style("İyiyim, seni gördüm daha iyi oldum! 😊 Sen nasılsın? Bugün ne yapmak istersin?");
+  if(has("adın ne","ismin","kimsin","adın","nesin"))return style(`Ben **${p.n}** ${p.e} — Türkçe konuşan bir sohbet botuyum. İnternetsiz çalışır, bilgilerin cihazından çıkmaz. 🔒`);
+  if(has("yaratıcın","seni kim","kim yaptı","yapan"))return style("Beni bu bilgisayarda, tek dosyalık bir web uygulaması olarak tasarladılar. 💻 Kalbim JavaScript ile atıyor!");
+  if(has("yardım","help","ne yapabilirsin","komut","neler","özellik"))return style(`✨ **Neler yapabilirim?**\n• 🧮 Hesap: \`25*4\`, \`(100+50)/3\`\n• 🕘 Saat & tarih: "saat kaç", "bugün günlerden ne"\n• 😂 Eğlence: "şaka yap", "bilmece sor"\n• 🔥 Motivasyon: "motivasyon ver", "hedef koydum"\n• 📚 Türkçe: "değil mi nasıl yazılır", "atasözü söyle"\n• 🌤 Hava durumu tahmini: "Ankara hava nasıl"\n• 🗣 Sesli konuşma: mikrofon + 🔊 okuma`);
+  if(has("saat kaç","saat","kaç"))return style(`🕘 Şu an saat **${new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"})}**.`);
+  if(has("tarih","bugün","günlerden","hangi gün","ay kaç")){const d=new Date();return style(`📅 Bugün **${d.toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric",weekday:"long"})}**.`);}
+  if(has("hava","yağmur","sıcak","soğuk","kar")){const cities=["İstanbul","Ankara","İzmir","Bursa","Antalya"];const c=cities.find(c=>q.includes(c.toLocaleLowerCase("tr-TR")))||cities[Math.floor(Math.random()*cities.length)];const t=8+Math.floor(Math.random()*20);const cond=["☀️ Açık","⛅ Parçalı bulutlu","🌧 Hafif yağmurlu","🌤 Güneşli"][Math.floor(Math.random()*4)];return style(`🌤 **${c}** için tahmini hava: ${cond}, **${t}°C**. (Temsili tahmin — şemsiyeyi yine de yanına al! ☂️)`);}
+  if(has("şaka","fıkra","güldür","komik"))return style("😂 "+JOKES[Math.floor(Math.random()*JOKES.length)]);
+  if(has("bilmece")){const r=RIDDLES[Math.floor(Math.random()*RIDDLES.length)];return style(`🧩 **Bilmece:** ${r[0].split("|")[0]}\n||Cevap: ${r[0].split("|")[1]}||`);}
+  if(has("motivasyon","motive","gaza","hedef","başarı","çalışma","ders","disiplin"))return style(MOTIV[Math.floor(Math.random()*MOTIV.length)]);
+  if(has("atasöz","özlü","deyim"))return style("📜 "+PROVERBS[Math.floor(Math.random()*PROVERBS.length)]);
+  if(has("teşekkür","sağol","eyvallah","süper","harika","güzel","bravo"))return style("Rica ederim! 😊 Yardımcı olabildiysem ne mutlu. Başka bir şey ister misin?");
+  if(has("görüşürüz","hoşça","bay bay","güle","çıkıyorum","kapat"))return style("Görüşürüz! 👋 Her zaman buradayım. Kendine iyi bak! ✨");
+  if(has("seviyorum","aşk","üzgün","mutsuz","depres","canım sık"))return style("Seni anlıyorum. 💛 Zor günler geçer; bugün kendine küçük bir iyilik yap: yürüyüş, su iç, derin nefes. Yanındayım — anlatmak ister misin?");
+  if(has("yazılım","kod","python","javascript","js ","html","css","algoritma","fonksiyon","hata","bug")){
+    if(state.persona!=="yazilim")return style("💻 Güzel bir yazılım sorusu! Örnek vereyim:\n```js\nfunction selamla(isim){\n  return `Merhaba ${isim}! 👋`;\n}\nconsole.log(selamla('Dünya'));\n```\nDetayı yazarsan (dil + hata mesajı) adım adım çözeriz.");
+    return style("💻 Hemen bakalım! Bana şunları söyle: **1)** Dil (JS/Python?) **2)** Ne yapmak istiyorsun? **3)** Hata mesajı varsa aynen yapıştır. Örnek fonksiyon:\n```js\nconst topla=(a,b)=>a+b;\nconsole.log(topla(3,5)); // 8\n```");
+  }
+  if(has("nasıl yazılır","yazımı","yazım","değil mi","her şey","şey","ki mi"))return style("📚 Kısa yazım ipucu:\n• **de/da** bağlaçsa ayrı: `ben de geldim`\n• **ki** bağlaçsa ayrı: `duydum ki gelmiş`\n• **şey** hep ayrı: `her şey`\n• **mi** hep ayrı: `geldi mi?`\nKelimeyi yaz, birlikte kontrol edelim! ✏️");
+  if(has("ingilizce","çevir","translate","almanca"))return style("🌍 Mini sözlük:\n• merhaba → **hello**\n• teşekkürler → **thank you**\n• nasılsın → **how are you**\n• görüşürüz → **see you**\nÇevirmemi istediğin cümleyi yaz: `çevir: günaydın` 📝");
+  if(has("nabıyon","napıyosun","ne yapıyorsun"))return style("Seninle sohbet ediyorum! 🥳 Sen ne yapıyorsun?");
+  if(has("açım","yemek","ne yesem","tarif"))return style("🍳 Hızlı öneri: **menemen** (yumurta+domates+biber, 10 dk) ya da **makarna + sarımsaklı yoğurt**. Tatlı istersen: ballı yoğurt + ceviz. Afiyet olsun! 😋");
+  if(has("film","dizi","kitap","öneri","öner"))return style("🎬 Öneriler:\n• Film: sıcak bir komedi ya da bilim-kurgu gecesi\n• Dizi: 25 dk'lık sitcom ile başla\n• Kitap: günde 10 sayfa kuralı 📖\nTürü söyle (komedi/korku/bilim), listeyi daraltayım!");
+  if(has("ismin ne olsun","isim öner","bot ismi"))return style("Bana **Pıtırcık** mı desek? 🤭 Şaka bir yana, sağ üstten 🔊 ile sesimi açabilir, soldan asistanımı değiştirebilirsin!");
+  // fallback
+  const topics=["teknoloji","yemek","film","motivasyon","yazılım","türkçe","matematik","hava durumu","şaka"].find(t=>q.includes(t));
+  const tips={teknoloji:"yapay zeka artık ceplerde bile çalışıyor 🤖",yemek:"menemen her krizi çözer 🍳",film:"bu akşam bir komedi iyi gider 🎬",motivasyon:"küçük adımlar büyük fark yaratır 🔥",yazılım:"günde 30 dk kod, 3 ayda seviye atlatır 💻",türkçe:"'her şey' ayrı yazılır 📚",matematik:"işlemini yaz, hemen çözeyim 🧮","hava durumu":"şehir adıyla sor, tahmin vereyim 🌤",şaka:"'şaka yap' demen yeterli 😂"};
+  const f=FALLBACKS[Math.floor(Math.random()*FALLBACKS.length)].replace("{q}",raw.slice(0,60)).replace("{t}",topics?tips[topics]:"bunu birlikte çözebiliriz");
+  return style(f);
+}
+
+/* ---------- send flow ---------- */
+let busy=false;
+function send(){
+  const text=inp.value.trim();
+  if(!text||busy)return;
+  busy=true;sendBtn.disabled=true;
+  if(!cur())newSession();
+  const s=cur();
+  if(s.msgs.length<=1||s.title==="Yeni sohbet")s.title=text.slice(0,34)+(text.length>34?"…":"");
+  s.msgs.push({r:"user",t:text,ts:Date.now()});
+  inp.value="";autoGrow();save();renderHist();
+  // user bubble + typing
+  msgs.innerHTML="";s.msgs.forEach(m=>msgs.appendChild(bubble(m.r,m.t)));
+  const tp=document.createElement("div");tp.className="msg bot";
+  tp.innerHTML=`<div class="av">${persona().e}</div><div class="bub typing"><i></i><i></i><i></i></div>`;
+  msgs.appendChild(tp);scrollDown();
+  $("#curDesc").textContent="yazıyor…";
+  const reply=answer(text);
+  const delay=500+Math.min(reply.length*8,2200);
+  setTimeout(()=>{
+    s.msgs.push({r:"bot",t:reply,ts:Date.now()});save();
+    // typewriter
+    tp.querySelector(".bub").classList.remove("typing");
+    const bub=tp.querySelector(".bub");bub.innerHTML="";
+    let i=0;const step=Math.max(1,Math.round(reply.length/120));
+    const timer=setInterval(()=>{
+      i+=step;bub.innerHTML=fmt(reply.slice(0,i));scrollDown();
+      if(i>=reply.length){clearInterval(timer);
+        msgs.innerHTML="";s.msgs.forEach(m=>msgs.appendChild(bubble(m.r,m.t)));scrollDown();
+        busy=false;sendBtn.disabled=false;$("#curDesc").textContent=persona().d+" • çevrimiçi";
+        if(state.sound)speak(reply,true);
+      }
+    },18);
+  },delay);
+}
+function speak(t,auto){
+  try{
+    if(!("speechSynthesis" in window))return;
+    if(auto&&!state.sound)return;
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t.replace(/```[\s\S]*?```/g,"kod örneği").replace(/[*#`]/g,"").slice(0,400));
+    u.lang="tr-TR";u.rate=1.02;speechSynthesis.speak(u);
+  }catch{}
+}
+
+/* ---------- events ---------- */
+sendBtn.onclick=send;
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+function autoGrow(){inp.style.height="auto";inp.style.height=Math.min(inp.scrollHeight,140)+"px";}
+inp.addEventListener("input",autoGrow);
+$("#newChat").onclick=()=>{newSession();closeSide();};
+$("#newChat2").onclick=()=>newSession();
+$("#clearBtn").onclick=()=>{if(confirm("Tüm sohbetler silinsin mi?")){state.sessions={};newSession();}};
+$("#exportBtn").onclick=()=>{
+  const s=cur();if(!s)return;
+  const txt=`SOHBET BOTU — ${s.title}\n${new Date().toLocaleString("tr-TR")}\n\n`+s.msgs.map(m=>(m.r==="user"?"🧑 Sen: ":"🤖 Bot: ")+m.t).join("\n\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));a.download="sohbet.txt";a.click();
+};
+function applyTheme(){document.documentElement.dataset.theme=state.theme;$("#themeBtn").textContent=state.theme==="dark"?"🌙":"☀️";save();}
+$("#themeBtn").onclick=()=>{state.theme=state.theme==="dark"?"light":"dark";applyTheme();};
+$("#soundBtn").onclick=e=>{state.sound=!state.sound;e.currentTarget.classList.toggle("on",state.sound);e.currentTarget.textContent=state.sound?"🔊":"🔇";if(!state.sound&&"speechSynthesis"in window)speechSynthesis.cancel();save();};
+if(!state.sound){$("#soundBtn").classList.remove("on");$("#soundBtn").textContent="🔇";}
+// mic
+$("#micBtn").onclick=()=>{
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert("Tarayıcın sesli girişi desteklemiyor (Chrome önerilir). 🎤");return;}
+  const r=new SR();r.lang="tr-TR";
+  $("#micBtn").textContent="🔴";
+  r.onresult=e=>{inp.value=e[0][0].transcript;autoGrow();send();};
+  r.onend=()=>$("#micBtn").textContent="🎤";
+  r.onerror=()=>$("#micBtn").textContent="🎤";
+  r.start();
+};
+// sidebar mobile
+const side=$("#side"),bd=$("#backdrop");
+function closeSide(){side.classList.remove("open");bd.classList.remove("show");}
+$("#menuBtn").onclick=()=>{side.classList.add("open");bd.classList.add("show");};
+bd.onclick=closeSide;
+
+/* ---------- init ---------- */
+if(!Object.keys(state.sessions).length)newSession(true);
+else if(!state.sessions[state.cur])state.cur=Object.keys(state.sessions)[0];
+applyTheme();renderAll();
+</script>
+</body>
+</html>
